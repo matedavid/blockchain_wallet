@@ -6,15 +6,17 @@ from src.Wallet import Wallet
 from src.Utils import generate_key_pair
 
 def loadWallet(name):
-    with open(name, "rb") as f:
+    with open("wallets/" + name, "rb") as f:
         wallet = pickle.load(f)
+    wallet.getBalance()
     return wallet
 
 def createNewWallet():
-    name = input("Name of your new wallet")
+    name = input("Name of your new wallet: ")
     if name not in os.listdir('wallets'):
         publ, priv = generate_key_pair()
         wallet = Wallet(name, publ, priv)
+        wallet.createWallet()
         wallet.saveWallet()
         return wallet
     else: 
@@ -33,8 +35,8 @@ if __name__ == '__main__':
         if res.lower() == "l":
             for wallet in range(len(wallets)):
                 print(wallet, "-", wallets[wallet])
-            num = input("What wallet do you want to load? ")
-            if num > 0 and num < len(wallets)-1:
+            num = int(input("What wallet do you want to load?: "))
+            if num >= 0 and num <= len(wallets)-1:
                 wallet = loadWallet(wallets[num])
         else:
             wallet = createNewWallet()
@@ -42,6 +44,5 @@ if __name__ == '__main__':
     # Create infinite loop to listen for actions
     while True:
         break
-    
 
     
