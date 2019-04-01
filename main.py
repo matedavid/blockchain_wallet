@@ -3,7 +3,7 @@ import os
 import pickle
 
 from src.Wallet import Wallet
-from src.Utils import generate_key_pair
+from src.Utils import generate_key_pair, commandsHelp
 
 def loadWallet(name):
     with open("wallets/" + name, "rb") as f:
@@ -16,12 +16,27 @@ def createNewWallet():
     if name not in os.listdir('wallets'):
         publ, priv = generate_key_pair()
         wallet = Wallet(name, publ, priv)
-        wallet.createWallet()
+        wallet.createAddress()
+        wallet.getBalance()
         wallet.saveWallet()
         return wallet
     else: 
         print("Name of the wallet already exists")
         return createNewWallet()
+
+def askReceiver():
+    recv = input("Enter address to send coins: ")
+
+    return recv if len(recv) == 66 else askReceiver()
+
+def askAmount():
+    amount = input("Amount to send: ")
+    try: 
+        amount = int(amount)
+        return amount
+    except:
+        print("Amount must be a number")
+        return askAmount()
 
 if __name__ == '__main__':
     wallet = None
@@ -42,7 +57,23 @@ if __name__ == '__main__':
             wallet = createNewWallet()
 
     # Create infinite loop to listen for actions
+    print("Loaded wallet:", wallet.name + "; Balance:", wallet.balance, "coins")
     while True:
-        break
+        ask = input("What do you want to do: ").lower()
+        if ask == "exit":
+            wallet.closeConnection()
+            print("Closing wallet...")
+            break
+        elif ask == "balance":
+            print("Balance of '{}' wallet: {} coins".format(wallet.name, wallet.balance))
+        elif ask == "send":
+            receiver = askReceiver()
+            amount = askAmount()
+
+            wallet.sendTransaction(receiver, amount)
+        elif ask == "help":
+            print(commandsHelp())
+        else:
+            print(commandsHelp())
 
     

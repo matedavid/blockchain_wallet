@@ -49,3 +49,12 @@ def manageBuffer(buffer, s):
         result += s.recv(buffer)
         
     return result.decode()
+
+
+def commandsHelp():
+    hp = "Commands:\n"
+    hp += "  - help display commands and information\n"
+    hp += "  - exit exists the program\n"
+    hp += "  - send send specified <amount> to specified <address>\n"
+    hp += "  - balance gets the balance of current wallet\n"
+    return hp
