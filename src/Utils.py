@@ -1,4 +1,5 @@
 import secrets
+import socket
 
 # Function that generates new public and private keys
 def generate_key_pair():
@@ -58,3 +59,11 @@ def commandsHelp():
     hp += "  - send send specified <amount> to specified <address>\n"
     hp += "  - balance gets the balance of current wallet\n"
     return hp
+
+
+def getLocalHostName():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    sock = s.getsockname()[0]
+    s.close()
+    return sock

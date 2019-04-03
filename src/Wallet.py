@@ -1,13 +1,14 @@
 import pickle
 import socket
 
-from src.Utils import parse_recv, manageBuffer
+from src.Utils import parse_recv, manageBuffer, getLocalHostName
 
 BUFFER = 128
 PORT = 8000
 def setupSocket():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_ip = socket.gethostbyname("localhost")
+    server_ip = getLocalHostName()
+    print(f"Listening on {server_ip}:{PORT}")
     s.connect((server_ip, PORT))
     return s 
 
@@ -53,6 +54,9 @@ class Wallet(object):
     def closeConnection(self):
         s.send("EXIT:;\n".encode())
         s.close()
+
+    def info(self):
+        return f"Name: {self.name}\nBalance: {self.balance}\nAddress: {self.address}"
 
     def sendTransaction(self, receiver, amount):
         self.getBalance()

@@ -26,7 +26,8 @@ def createNewWallet():
 
 def askReceiver():
     recv = input("Enter address to send coins: ")
-
+    if recv.lower() == "back":
+        return None
     return recv if len(recv) == 66 else askReceiver()
 
 def askAmount():
@@ -68,9 +69,20 @@ if __name__ == '__main__':
             print("Balance of '{}' wallet: {} coins".format(wallet.name, wallet.balance))
         elif ask == "send":
             receiver = askReceiver()
-            amount = askAmount()
+            if (receiver != None):
+                amount = askAmount()
 
-            wallet.sendTransaction(receiver, amount)
+                wallet.sendTransaction(receiver, amount)
+
+        elif ask == "delete":
+            r = input(f"Are you sure you want to delete '{wallet.name}' wallet?: ")
+            if r.lower() == "y" or r.lower() == "yes":
+                os.system(f'rm wallets/{wallet.name}.wallet')
+                print("Wallet deleted succesfully!")
+                break
+
+        elif ask == "info":
+            print(wallet.info())
         elif ask == "help":
             print(commandsHelp())
         else:
