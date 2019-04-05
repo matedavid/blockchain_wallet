@@ -45,6 +45,8 @@ class Wallet(object):
             self.createAddress()
             self.getBalance()
 
+        return self.balance
+
     def createAddress(self):
         request = "CREATE_ADDRESS: " + self.address + ";\n"
         s.send(request.encode())
@@ -56,11 +58,13 @@ class Wallet(object):
         s.close()
 
     def info(self):
-        return f"Name: {self.name}\nBalance: {self.balance}\nAddress: {self.address}"
+        return f"Name: {self.name}\nBalance: {self.getBalance()}\nAddress: {self.address}"
 
     def sendTransaction(self, receiver, amount):
         self.getBalance()
-        if amount <= self.balance:
+        if receiver == self.address:
+            print("Address inputed is same address as wallet: aborting")
+        elif amount <= self.balance and receiver != self.address:
             request = "CREATE_TRANSACTION: {}; {}; {};".format(self.address, receiver, float(amount))
             s.send(request.encode())
             res = manageBuffer(BUFFER, s)

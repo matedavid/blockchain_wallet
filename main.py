@@ -39,6 +39,14 @@ def askAmount():
         print("Amount must be a number")
         return askAmount()
 
+def showWallets(wallets, notShow=[]):
+    for wallet in range(len(wallets)):
+        walletName = wallets[wallet].split(".")[0] 
+        if walletName not in notShow:
+            print(wallet, "-", wallets[wallet])
+
+
+
 if __name__ == '__main__':
     wallet = None
     wallets = os.listdir('wallets')
@@ -49,8 +57,7 @@ if __name__ == '__main__':
     else:
         res = input("Do you want to create a new wallet or load an existing one?: (c, l) ")
         if res.lower() == "l":
-            for wallet in range(len(wallets)):
-                print(wallet, "-", wallets[wallet])
+            showWallets(wallets)
             num = int(input("What wallet do you want to load?: "))
             if num >= 0 and num <= len(wallets)-1:
                 wallet = loadWallet(wallets[num])
@@ -58,7 +65,7 @@ if __name__ == '__main__':
             wallet = createNewWallet()
 
     # Create infinite loop to listen for actions
-    print("Loaded wallet:", wallet.name + "; Balance:", wallet.balance, "coins")
+    print("Loaded wallet:", wallet.name + "; Balance:", wallet.getBalance(), "coins")
     while True:
         ask = input("What do you want to do: ").lower()
         if ask == "exit":
@@ -66,7 +73,7 @@ if __name__ == '__main__':
             print("Closing wallet...")
             break
         elif ask == "balance":
-            print("Balance of '{}' wallet: {} coins".format(wallet.name, wallet.balance))
+            print("Balance of '{}' wallet: {} coins".format(wallet.name, wallet.getBalance()))
         elif ask == "send":
             receiver = askReceiver()
             if (receiver != None):
@@ -81,6 +88,12 @@ if __name__ == '__main__':
                 print("Wallet deleted succesfully!")
                 break
 
+        elif ask == "change":
+            showWallets(wallets, [wallet.name])
+            r = input("To what wallet do you want to change?: ")
+            wallet = loadWallet(wallets[int(r)])
+            print(f"\nSuccesfully changed to wallet: {wallet.name}; Balance: {wallet.balance} coins")
+ 
         elif ask == "info":
             print(wallet.info())
         elif ask == "help":
