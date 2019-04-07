@@ -2,6 +2,8 @@ import secrets
 import socket
 import pickle
 
+BUFFER = 128
+
 # Function that generates new public and private keys
 def generate_key_pair():
     bits = secrets.randbits(256)
@@ -72,3 +74,8 @@ def loadWallet(name):
         wallet.getBalance()
         return wallet 
 
+def setupSocket(server_ip, PORT):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print(f"Listening on {server_ip}:{PORT}")
+    s.connect((server_ip, PORT))
+    return s 

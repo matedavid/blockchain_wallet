@@ -3,12 +3,19 @@ import os
 import pickle
 
 from src.Wallet import Wallet
-from src.Utils import generate_key_pair, commandsHelp
+from src.Utils import generate_key_pair, commandsHelp, setupSocket, getLocalHostName, manageBuffer, BUFFER
+
+PORT = 8000
+server_ip = getLocalHostName()
+
+s = setupSocket(server_ip, PORT)
+_ = manageBuffer(BUFFER, s)
+
 
 def loadWallet(name):
     with open("wallets/" + name, "rb") as f:
         wallet = pickle.load(f)
-    wallet.getBalance()
+    wallet.getBalance(s)
     return wallet
 
 def createNewWallet():
@@ -16,8 +23,8 @@ def createNewWallet():
     if name not in os.listdir('wallets'):
         publ, priv = generate_key_pair()
         wallet = Wallet(name, publ, priv)
-        wallet.createAddress()
-        wallet.getBalance()
+        wallet.createAddress(s)
+        wallet.getBalance(s)
         wallet.saveWallet()
         return wallet
     else: 
@@ -45,8 +52,6 @@ def showWallets(wallets, notShow=[]):
         if walletName not in notShow:
             print(wallet, "-", wallets[wallet])
 
-
-
 if __name__ == '__main__':
     wallet = None
     wallets = os.listdir('wallets')
@@ -65,21 +70,21 @@ if __name__ == '__main__':
             wallet = createNewWallet()
 
     # Create infinite loop to listen for actions
-    print("Loaded wallet:", wallet.name + "; Balance:", wallet.getBalance(), "coins")
+    print("Loaded wallet:", wallet.name + "; Balance:", wallet.getBalance(s), "coins")
     while True:
         ask = input("What do you want to do: ").lower()
         if ask == "exit":
-            wallet.closeConnection()
+            wallet.closeConnection(s)
             print("Closing wallet...")
             break
         elif ask == "balance":
-            print("Balance of '{}' wallet: {} coins".format(wallet.name, wallet.getBalance()))
+            print("Balance of '{}' wallet: {} coins".format(wallet.name, wallet.getBalance(s)))
         elif ask == "send":
             receiver = askReceiver()
             if (receiver != None):
                 amount = askAmount()
 
-                wallet.sendTransaction(receiver, amount)
+                wallet.sendTransaction(receiver, amount, s)
 
         elif ask == "delete":
             r = input(f"Are you sure you want to delete '{wallet.name}' wallet?: ")
@@ -95,7 +100,7 @@ if __name__ == '__main__':
             print(f"\nSuccesfully changed to wallet: {wallet.name}; Balance: {wallet.balance} coins")
  
         elif ask == "info":
-            print(wallet.info())
+            print(wallet.info(s))
         elif ask == "help":
             print(commandsHelp())
         else:

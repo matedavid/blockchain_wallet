@@ -2,9 +2,36 @@
 {% block content %}
 
     {% if wallet %}
-    
-    {% else %}
+        <div class="row">
+            <div class="info">
+                <h3>Wallet address: {{ wallet.address }}</h3>
+                <h3>Balance: {{ wallet.balance }}</h3>
+            </div>
 
+            <div class="transaction">
+                <form action="" class="transactionForm">
+                    <label for="address"></label> 
+                    <input id="address" type="text" placeholder="Enter address"> <br>
+                    <label for="amount"></label>
+                    <input id="amount" type="number" placeholder="Enter amount">
+                    <button class="transaction">Send transaction</button>
+                </form>
+            </div>
+        </div>
+
+    {% else %}
+        <h1>Wallet not found</h1>
     {% endif %}
 
 {% endblock %}
+
+<script>
+    $(document).ready(() => {
+
+        $('.transaction').on('click', (e) => {
+            e.preventDefault();
+            console.log("Hello world");
+        });
+
+    });
+</script>
