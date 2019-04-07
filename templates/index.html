@@ -1,19 +1,16 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>Wallet localhost web version</title>
-	</head>
+{% extends 'header.html' %}
+{% block content %}
 
-	<body>
-		{% if wallets %}
-			<h2>Your wallets:</h2>
-			{% for wallet in wallets %}
-				<a href="/wallet/{{ wallet.replace('.wallet', '') }}">{{ wallet }}</a><br>
-			{% endfor %}
-		{% else %}
-			<h2>You don't have wallets, create one</h2>
-		{% endif %}
-		<br>
-		<button onclick="location.pathname = '/create';">Create wallet</button>
-	</body>
-</html>
+	{% if wallets %}
+		<h2>Your wallets:</h2>
+		{% for wallet in wallets %}
+			<a href="/wallet/{{ wallet.replace(".wallet", "") }}">{{  wallet.replace(".wallet", "") }}</a><br>
+		{% endfor %}
+	{% else %}
+		<h2>You don't have wallets, create one</h2>
+	{% endif %}
+	<br>
+	<button onclick="location.pathname = '/create';">Create wallet</button>
+
+{% endblock %}
+

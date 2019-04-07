@@ -1,6 +1,6 @@
 import secrets
 import socket
-
+import pickle
 
 # Function that generates new public and private keys
 def generate_key_pair():
