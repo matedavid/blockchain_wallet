@@ -3,11 +3,6 @@ import socket
 
 from src.Utils import parse_recv, manageBuffer, BUFFER
 
-# s = setupSocket()
-# rs = manageBuffer(BUFFER, s)
-# print("Connection:", rs)
-
-
 class Wallet(object):
     def __init__(self, name, address, priv):
         self.name = name
@@ -70,7 +65,8 @@ class Wallet(object):
             s.send(request.encode())
             res = manageBuffer(BUFFER, s)
 
-            command, options = parse_recv(res)
+            command, _ = parse_recv(res)
+
             if command == "SUCCESS":
                 print("Transaction sended succesfully")
                 self.getBalance(s)

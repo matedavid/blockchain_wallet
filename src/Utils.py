@@ -13,6 +13,7 @@ def generate_key_pair():
 
     return publ_key, priv_key
 
+# Parses the receiver response from the blockchain to get command and options
 def parse_recv(response):
     command = ""
     options = []
@@ -35,7 +36,7 @@ def parse_recv(response):
 
     return command, options
 
-
+# Manager the buffer of the received message 
 def manageBuffer(buffer, s):
     result = s.recv(buffer)
     
@@ -43,6 +44,7 @@ def manageBuffer(buffer, s):
     while res[len(result) - 1] != ";":
         try: 
             p = res[len(result)]
+            del p
         except: 
             return result.decode()
 
@@ -51,7 +53,7 @@ def manageBuffer(buffer, s):
         
     return result.decode()
 
-
+# Displays the commands for the cli version
 def commandsHelp():
     hp = "Commands:\n"
     hp += "  - help display commands and information\n"
@@ -68,14 +70,15 @@ def getLocalHostName():
     s.close()
     return sock
 
-def loadWallet(name):
+def loadWallet(name, s):
     with open("wallets/" + name, "rb") as f:
         wallet = pickle.load(f)
-        wallet.getBalance()
+        wallet.getBalance(s)
         return wallet 
 
-def setupSocket(server_ip, PORT):
+def setupSocket(server_ip, PORT, connect=True):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print(f"Listening on {server_ip}:{PORT}")
-    s.connect((server_ip, PORT))
+    if connect:
+        s.connect((server_ip, PORT))
     return s 
