@@ -1,37 +1,52 @@
-{% extends 'header.html' %}
-{% block content %}
+{% extends 'header.html' %} {% block content %} {% if wallet %}
+<div class="row">
+    <div class="info">
+        <h3>Wallet name:
+            <span style="font-weight: normal">{{ wallet.name }}</span>
+        </h3>
+        <h3>Wallet address:
+            <span style="font-weight: normal" class="walletAddress">{{ wallet.address }}</span>
+        </h3>
+        <h3>Balance:
+            <span style="font-weight: normal">{{ wallet.balance }}</span>
+        </h3>
+    </div>
 
-    {% if wallet %}
-        <div class="row">
-            <div class="info">
-                <h3>Wallet address: {{ wallet.address }}</h3>
-                <h3>Balance: <span style="font-weight: normal">{{ wallet.balance }}</span></h3>
-            </div>
+    <div class="transaction">
+        <form class="transactionForm">
+            <label for="address"></label>
+            <input class="receiverAddress" id="address" type="text" placeholder="Enter address">
+            <br>
+            <label for="amount"></label>
+            <input class="amount" id="amount" type="number" placeholder="Enter amount">
+            <button class="send">Send transaction</button>
+        </form>
+    </div>
+</div>
 
-            <div class="transaction">
-                <form action="" class="transactionForm">
-                    <label for="address"></label> 
-                    <input id="address" type="text" placeholder="Enter address"> <br>
-                    <label for="amount"></label>
-                    <input id="amount" type="number" placeholder="Enter amount">
-                    <button class="transaction">Send transaction</button>
-                </form>
-            </div>
-        </div>
-
-    {% else %}
-        <h1>Wallet not found</h1>
-    {% endif %}
-
-{% endblock %}
+{% else %}
+<h1>Wallet not found</h1>
+{% endif %}
 
 <script>
-    $(document).ready(() => {
-
-        $('.transaction').on('click', (e) => {
-            e.preventDefault();
-            console.log("Hello world");
-        });
-
+    $('.send').on('click', (e) => {
+        e.preventDefault();
+        let data = {
+            sender: $('.walletAddress').html(),
+            receiver: $('.receiverAddress').val(),
+            amount: $('.amount').val()
+        }
+    
+        
+        $.ajax({
+            type: "POST",
+            url: "/transaction",
+            data: JSON.stringify(data),
+            success: (e) => {
+                console.log(e)
+            }
+            
+            
+        })
     });
-</script>
+</script> {% endblock %}

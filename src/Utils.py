@@ -74,7 +74,7 @@ def loadWallet(name, s):
     with open("wallets/" + name, "rb") as f:
         wallet = pickle.load(f)
         wallet.getBalance(s)
-        return wallet 
+    return wallet
 
 def setupSocket(server_ip, PORT, connect=True):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
