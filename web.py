@@ -23,6 +23,8 @@ app = Flask(__name__)
 # Setup socket
 PORT = 8000
 server_ip = getLocalHostName()
+
+global s
 s = setupSocket(server_ip, PORT, connect=False)
 
 # Wallet selected in server
@@ -33,12 +35,10 @@ def connectSocket(s):
     _ = manageBuffer(BUFFER, s)
     return s
 
-def close(s):
-    s.send("EXIT:;\n".encode())
-    s.shutdown(socket.SHUT_WR)
-    s.close()
-    s = setupSocket(server_ip, PORT, connect=False)
-    return s
+def close(sock):
+    sock.send("EXIT:;\n".encode())
+    sock.shutdown(socket.SHUT_WR)
+    return setupSocket(server_ip, PORT, connect=False)
 
 
 @app.route("/")
@@ -53,7 +53,9 @@ def wallet(name):
     if os.path.isfile(path):
         currentWallet = loadWallet((name+".wallet"), sock)
         _ = currentWallet.getBalance(sock)
-        close(sock)
+        
+        # TODO: fix complaint s not defined in line 51 when only using s as the variable 
+        globals()['s'] = close(sock)
         return render_template('wallet.html', wallet=currentWallet,title=currentWallet.name)
     else:
         close(s)
