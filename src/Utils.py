@@ -1,5 +1,6 @@
 import secrets
 import socket
+from wallet import Wallet
 
 # Function that generates new public and private keys
 def generate_key_pair():
@@ -67,3 +68,10 @@ def getLocalHostName():
     sock = s.getsockname()[0]
     s.close()
     return sock
+
+def loadWallet(name):
+    with open("wallets/" + name, "rb") as f:
+        wallet = pickle.load(f)
+        wallet.getBalance()
+        return wallet 
+
