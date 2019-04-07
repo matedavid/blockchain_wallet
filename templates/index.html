@@ -5,6 +5,15 @@
 	</head>
 
 	<body>
-		<h2>Hello world</h2>
+		{% if wallets %}
+			<h2>Your wallets:</h2>
+			{% for wallet in wallets %}
+				<a href="/wallet/{{ wallet.replace('.wallet', '') }}">{{ wallet }}</a><br>
+			{% endfor %}
+		{% else %}
+			<h2>You don't have wallets, create one</h2>
+		{% endif %}
+		<br>
+		<button onclick="location.pathname = '/create';">Create wallet</button>
 	</body>
 </html>

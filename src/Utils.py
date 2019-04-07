@@ -1,6 +1,6 @@
 import secrets
 import socket
-from wallet import Wallet
+
 
 # Function that generates new public and private keys
 def generate_key_pair():
@@ -8,9 +8,6 @@ def generate_key_pair():
     publ_key = hex(bits)
 
     priv_key = publ_key[2:]
-
-    #print(publ_key)
-    #print(priv_key)
 
     return publ_key, priv_key
 

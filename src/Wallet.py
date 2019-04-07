@@ -5,16 +5,19 @@ from src.Utils import parse_recv, manageBuffer, getLocalHostName
 
 BUFFER = 128
 PORT = 8000
+server_ip = getLocalHostName()
+
+"""
 def setupSocket():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_ip = getLocalHostName()
     print(f"Listening on {server_ip}:{PORT}")
     s.connect((server_ip, PORT))
     return s 
+"""
 
-s = setupSocket()
-rs = manageBuffer(BUFFER, s)
-print("Connection:", rs)
+# s = setupSocket()
+# rs = manageBuffer(BUFFER, s)
+# print("Connection:", rs)
 
 
 class Wallet(object):
@@ -24,11 +27,22 @@ class Wallet(object):
         self.priv = priv
         self.balance = 0
 
+    def getSocket(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((server_ip, PORT))
+        rs = manageBuffer(BUFFER, s)
+        del rs
+        return s
+
+    def closeConnection(self, s):
+        s.send("EXIT:;\n".encode())
+
     def saveWallet(self):
         with open("wallets/" + self.name + ".wallet", "wb") as f:
             pickle.dump(self, f)
 
     def getBalance(self):
+        s = self.getSocket()
         request = "GET_BALANCE: " + self.address + ";\n"
         s.send(request.encode())
         res = manageBuffer(BUFFER, s)
@@ -45,22 +59,27 @@ class Wallet(object):
             self.createAddress()
             self.getBalance()
 
+        self.closeConnection(s)
         return self.balance
 
     def createAddress(self):
+        s = self.getSocket()
+
         request = "CREATE_ADDRESS: " + self.address + ";\n"
         s.send(request.encode())
         res = manageBuffer(BUFFER, s)
         del res
 
-    def closeConnection(self):
-        s.send("EXIT:;\n".encode())
-        s.close()
+        self.closeConnection(s)
+
+    
 
     def info(self):
         return f"Name: {self.name}\nBalance: {self.getBalance()}\nAddress: {self.address}"
 
     def sendTransaction(self, receiver, amount):
+        s = self.getSocket()
+
         self.getBalance()
         if receiver == self.address:
             print("Address inputed is same address as wallet: aborting")
@@ -79,3 +98,4 @@ class Wallet(object):
         else:
             print("[ERROR]: Not enough funds")
 
+        self.closeConnection(s)
