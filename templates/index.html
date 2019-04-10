@@ -10,7 +10,31 @@
 		<h2>You don't have wallets, create one</h2>
 	{% endif %}
 	<br>
-	<button onclick="location.pathname = '/create';">Create wallet</button>
+	
+	<h3>Want to create a new wallet?</h3>
+	<label for="walletName">Wallet name:</label>
+	<input id="walletName" class="walletName" placeholder="Enter new wallet name..." type="text">
+	<button class="createWalletButton">Create wallet</button>
 
+
+
+	<script>
+		$('.createWalletButton').on('click', (e) => {
+			e.preventDefault();	
+			let name = $('.walletName').val();
+			console.log(name);
+			$.ajax({
+				type: "POST",
+				url: "/create",
+				data: JSON.stringify({"name": name}),
+				success: (e) => {
+					let data = JSON.parse(e)
+					if (data.status == true) {
+						location.pathname  = "wallet/"+name
+					}
+				}
+			});
+		});
+	</script>
 {% endblock %}
 

@@ -1,14 +1,16 @@
-{% extends 'header.html' %} {% block content %} {% if wallet %}
+{% extends 'header.html' %} {% block content %} 
+
+{% if wallet %}
 <div class="row">
     <div class="info">
         <h3>Wallet name:
-            <span style="font-weight: normal">{{ wallet.name }}</span>
+            <span class="walletName" style="font-weight: normal">{{ wallet.name }}</span>
         </h3>
         <h3>Wallet address:
             <span style="font-weight: normal" class="walletAddress">{{ wallet.address }}</span>
         </h3>
         <h3>Balance:
-            <span style="font-weight: normal">{{ wallet.balance }}</span>
+            <span class="balance" style="font-weight: normal">{{ wallet.balance }}</span>
         </h3>
     </div>
 
@@ -29,9 +31,16 @@
 {% endif %}
 
 <script>
+	
+	function isFloat(n){
+		return Number(n) === n && n % 1 !== 0;
+	}
+
+
     $('.send').on('click', (e) => {
         e.preventDefault();
         let data = {
+			name: $('.walletName').html(),
             sender: $('.walletAddress').html(),
             receiver: $('.receiverAddress').val(),
             amount: $('.amount').val()
@@ -43,10 +52,24 @@
             url: "/transaction",
             data: JSON.stringify(data),
             success: (e) => {
-                console.log(e)
+				let data = JSON.parse(e);
+				if (data.status == true) {
+					changeBalance(parseFloat(data.balance));
+				} else {
+					alert(`ERROR: ${data.message}`);
+				}
             }
-            
-            
-        })
+        });
     });
+
+	function changeBalance(num) {
+		const balanceTag = $('.balance');
+		let currentBalance = parseFloat(balanceTag.html());
+		if (currentBalance !== num) {
+			balanceTag.html(isFloat(num) ? num : num + ".0");
+		}
+		alert("Transaction send succesfully!");
+	}
+	
+
 </script> {% endblock %}

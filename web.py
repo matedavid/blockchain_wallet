@@ -41,6 +41,18 @@ def close(sock):
     sock.shutdown(socket.SHUT_WR)
     return setupSocket(server_ip, PORT, connect=False)
 
+def createWallet(name, s):
+    if name not in os.listdir('wallets'):
+        publ, priv = generate_key_pair()
+        wallet = Wallet(name, publ, priv)
+        wallet.createAddress(s)
+        _ = wallet.getBalance(s)
+        wallet.saveWallet()
+        return True, wallet
+
+    else:
+        return False, "Name of the wallet already exists"
+
 
 @app.route("/")
 def index():
@@ -52,42 +64,66 @@ def wallet(name):
     sock = connectSocket(s)
     path = f"wallets/{name}.wallet"
     if os.path.isfile(path):
-        globals()['currentWallet'] = loadWallet((name+".wallet"), sock)
-        print(currentWallet.balance)
+        currentWallet = loadWallet((name+".wallet"), sock)
+        print(currentWallet)
         _ = currentWallet.getBalance(sock)
+
         # TODO: fix complaint 's not defined' in line 51 when only using s as the variable 
         globals()['s'] = close(sock)
         return render_template('wallet.html', wallet=currentWallet,title=currentWallet.name)
     else:
-        close(s)
+        globals()['s'] = close(s)
         return "<h1>Wallet does not exist</h1><a href='/'>Return to home</a>"
 
+# TODO: change current shitty validation method and enable repsonse to javascript make the change without having to refresh 
 @app.route("/transaction", methods=["POST"])
 def transaction():
     sock = connectSocket(s)
     req = request.get_data().decode()
     data = json.loads(req)
-    sender, receiver, amount = data['sender'], data['receiver'], float(data['amount'])
-    print(amount, currentWallet.balance)
+    name, sender, receiver, amount = data['name'], data['sender'], data['receiver'], float(data['amount'])
+
+    currentWallet = loadWallet("{}.wallet".format(name), sock)
+    
+    if receiver == currentWallet.address:
+        globals()['s'] = close(sock)
+        return json.dumps({'status': False, "message": "Input address is the same as current wallet"})
+
     if sender != "" and sender != " " and sender != None and len(sender) == 66:
         if receiver != "" and receiver != " " and receiver != None and len(receiver) == 66:
             if amount > 0 and amount <= currentWallet.balance:
-                print("All ok")
-                globals()['currentWallet'].sendTransaction(receiver, amount, sock)
+                currentWallet.sendTransaction(receiver, amount, sock)
             else:
                 globals()['s'] = close(sock)
-                return "Amount not valid"
+                return json.dumps({"status": False, "message": "The balance does not have enough funds"})
         else:
             globals()['s'] = close(sock)
-            print("Receiver not valid")
-            return "Receiver not valid"
+            return json.dumps({"status": False, "message": "Receiver not valid"})
     else:
         globals()['s'] = close(sock)
-        print("Sender not valid")
-        return "Sender not valid"
+        return json.dumps({"status": False, "message": "Sender not valid"})
+    
+    newBalance = currentWallet.getBalance(sock)
 
     globals()['s'] = close(sock)
-    return "Success"
+    return json.dumps({'status': True, "balance": float(newBalance)})
+
+@app.route("/create", methods=["POST"])
+def createPost():
+    sock = connectSocket(s)
+    req = request.get_data().decode() 
+    data = json.loads(req)
+    print(data)
+    
+    ok, newWallet = createWallet(data['name'], sock)
+
+    if ok == False:
+        globals()['s'] = close(sock)
+        return json.dumps({"status": False, "message": newWallet});
+    
+    currentWallet = newWallet
+    globals()['s'] = close(sock)
+    return json.dumps({"status": True, "message": ""});
 
 if __name__ == "__main__":
     _ = connectSocket(s)
