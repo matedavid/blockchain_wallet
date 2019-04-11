@@ -75,7 +75,7 @@ def wallet(name):
         globals()['s'] = close(s)
         return "<h1>Wallet does not exist</h1><a href='/'>Return to home</a>"
 
-# TODO: change current shitty validation method and enable repsonse to javascript make the change without having to refresh 
+# TODO: change current validation methoq and enable repsonse to javascript make the change without having to refresh 
 @app.route("/transaction", methods=["POST"])
 def transaction():
     sock = connectSocket(s)
@@ -124,6 +124,24 @@ def createPost():
     currentWallet = newWallet
     globals()['s'] = close(sock)
     return json.dumps({"status": True, "message": ""});
+
+@app.route("/delete/<name>")
+def delete(name):
+    sock = connectSocket(s)
+
+    name = name + ".wallet"
+    if name in os.listdir('wallets'):
+        try:
+            os.remove(f"wallets/{name}")
+        except:
+            globals()['s'] = close(sock)
+            return json.dumps({"status": False, "message": "Error happened while deleting file"})
+    else:
+        globals()['s'] = close(sock)
+        return json.dumps({"status": False, "message": "File name does not exist"})
+
+    globals()['s'] = close(sock)
+    return json.dumps({"status": True, "message": ""})
 
 if __name__ == "__main__":
     _ = connectSocket(s)
