@@ -2,14 +2,16 @@
 {% block content %}
 
 	{% if wallets %}
-		<h2>Your wallets:</h2>
+		<h2 class="walletNumber" id="{{ wallets|length }}">Your wallets:</h2>
 		{% for wallet in wallets %}
-			<a href="/wallet/{{ wallet.replace(".wallet", "") }}">{{  wallet.replace(".wallet", "") }}</a><br>
+			<a href="/wallet/{{ wallet.replace(".wallet", "") }}" class="wallet_{{ loop.index }}">{{  wallet.replace(".wallet", "") }}</a>
+			<button hidden class="deleteButton_{{ loop.index }}"><span style="color: red;">Delete wallet</span></button>
+			<br />
 		{% endfor %}
+		<button onclick="showDeleteButtons()">Show delete buttons</button> <button onclick="hideDeleteButtons()">Hide delete buttons</button>
 	{% else %}
 		<h2>You don't have wallets, create one</h2>
 	{% endif %}
-	<br>
 	
 	<h3>Want to create a new wallet?</h3>
 	<label for="walletName">Wallet name:</label>
@@ -19,6 +21,12 @@
 
 
 	<script>
+		try {
+			const walletNumber = parseInt($('.walletNumber').get(0).id);
+		} catch {
+			console.log("No wallets");
+		}
+
 		$('.createWalletButton').on('click', (e) => {
 			e.preventDefault();	
 			let name = $('.walletName').val();
@@ -35,6 +43,43 @@
 				}
 			});
 		});
+		
+		function showDeleteButtons() {
+			for (let i = 0; i <= walletNumber; i++) {
+				let button = $('.deleteButton_' + i);
+				button.attr('hidden', false);
+
+				let name = $('.wallet_'+i).html()
+				button.on('click', (e) => {
+					deleteWallet(name);
+				});
+
+			};
+		}
+
+		function hideDeleteButtons() {
+			for (let i = 0; i <= walletNumber; i++) {
+				$('.deleteButton_'+i).attr('hidden', true);
+			}
+		}
+
+		function deleteWallet(name) {
+			$.ajax({
+				type: "POST",
+				url: "/delete/" + name,
+				success: (e) => {
+					let data = JSON.parse(e);
+					if (data.status == true) {
+						alert("Wallet deleted succesfully");
+						location.reload();
+					} else {
+						alert(data.message);
+					}
+				}
+
+			})
+		}
+
 	</script>
 {% endblock %}
 

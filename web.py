@@ -125,7 +125,7 @@ def createPost():
     globals()['s'] = close(sock)
     return json.dumps({"status": True, "message": ""});
 
-@app.route("/delete/<name>")
+@app.route("/delete/<name>", methods=['POST'])
 def delete(name):
     sock = connectSocket(s)
 
