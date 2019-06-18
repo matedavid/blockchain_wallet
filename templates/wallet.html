@@ -46,7 +46,19 @@
             amount: $('.amount').val()
         }
     
+        if (data.amount == parseFloat($('.balance').html())) {
+            let res = confirm("Are you sure you want to send all of your funds?")
+            if (res) {
+                sendTransaction(data);
+            }
+        } else {
+            sendTransaction(data);
+        }
         
+        
+    });
+
+    function sendTransaction(data) {
         $.ajax({
             type: "POST",
             url: "/transaction",
@@ -55,12 +67,14 @@
 				let data = JSON.parse(e);
 				if (data.status == true) {
 					changeBalance(parseFloat(data.balance));
+					alert("Transaction send succesfully")
 				} else {
 					alert(`ERROR: ${data.message}`);
 				}
             }
         });
-    });
+    }
+
 
 	function changeBalance(num) {
 		const balanceTag = $('.balance');
@@ -68,8 +82,27 @@
 		if (currentBalance !== num) {
 			balanceTag.html(isFloat(num) ? num : num + ".0");
 		}
-		alert("Transaction send succesfully!");
 	}
+
+	setInterval(() => {
+		console.log("Checking balance")
+		$.ajax({
+			type: "GET",
+			url: "/balance/" + $('.walletName').html(),
+			success: (e) => {
+				let data = JSON.parse(e);
+				let newBalance = parseFloat(data.message);
+				if (data.status == true) {
+					let currentBalance = parseFloat($('.balance').html());
+					if (currentBalance != newBalance) {
+						changeBalance(newBalance);
+						alert("Transaction received");
+					}
+				}
+			}
+
+		})
+	}, 5000);
 	
 
 </script> {% endblock %}

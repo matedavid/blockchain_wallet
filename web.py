@@ -39,6 +39,7 @@ def connectSocket(s):
 def close(sock):
     sock.send("EXIT:;\n".encode())
     sock.shutdown(socket.SHUT_WR)
+    # sock.close()
     return setupSocket(server_ip, PORT, connect=False)
 
 def createWallet(name, s):
@@ -72,7 +73,7 @@ def wallet(name):
         globals()['s'] = close(sock)
         return render_template('wallet.html', wallet=currentWallet,title=currentWallet.name)
     else:
-        globals()['s'] = close(s)
+        globals()['s'] = close(sock)
         return "<h1>Wallet does not exist</h1><a href='/'>Return to home</a>"
 
 # TODO: change current validation methoq and enable repsonse to javascript make the change without having to refresh 
@@ -143,7 +144,21 @@ def delete(name):
     globals()['s'] = close(sock)
     return json.dumps({"status": True, "message": ""})
 
+@app.route("/balance/<wallet>/", methods=["GET"])
+def balance_refresh(wallet):
+
+    sock = connectSocket(s)
+
+    name = wallet + ".wallet"
+
+    currentWallet = loadWallet(name, sock)
+    balance = currentWallet.getBalance(sock)
+    
+    globals()['s'] = close(sock)
+
+    return json.dumps({"status": True, "message": balance})
+
 if __name__ == "__main__":
     _ = connectSocket(s)
-    s = close(s)
+    s = close(_)
     app.run(debug=True)
